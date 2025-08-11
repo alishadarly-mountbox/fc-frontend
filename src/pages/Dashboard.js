@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../api/api";
 import AddSchoolModal from "../components/AddSchoolModal";
 import SchoolDropdown from "../components/SchoolDropdown";
@@ -6,12 +7,38 @@ import StudentTable from "../components/StudentTable";
 import Popup from "../components/Popup";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   // State variables
   const [schools, setSchools] = useState([]);
   const [selectedSchool, setSelectedSchool] = useState("");
   const [students, setStudents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [popup, setPopup] = useState({ show: false, message: "", type: "" });
+
+  // Get user info from localStorage
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  useEffect(() => {
+    fetchSchools();
+  }, []);
+
+  useEffect(() => {
+    if (selectedSchool) fetchStudents(selectedSchool);
+  }, [selectedSchool]);
+
+  const handleLogout = async () => {
+    try {
+      // Call logout endpoint
+      await API.post('/auth/logout');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Clear localStorage and redirect to login
+      localStorage.removeItem('user');
+      localStorage.removeItem('isLoggedIn');
+      navigate('/');
+    }
+  };
 
   useEffect(() => {
     fetchSchools();
@@ -142,13 +169,26 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-100 p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <h1 className="text-xl sm:text-2xl font-bold">Face Verification App</h1>
-        <button
-          className="w-full sm:w-auto bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          onClick={handleAddSchool}
-        >
-          Add School
-        </button>
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold">Face Verification App</h1>
+          <p className="text-sm text-gray-600 mt-1">
+            Welcome, {user.username || 'User'}!
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <button
+            className="w-full sm:w-auto bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            onClick={handleAddSchool}
+          >
+            Add School
+          </button>
+          <button
+            className="w-full sm:w-auto bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </div>
       </div>
       
       <div className="flex flex-col gap-4 mb-4">
