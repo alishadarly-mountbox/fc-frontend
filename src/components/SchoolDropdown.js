@@ -78,6 +78,8 @@ export default function SchoolDropdown({ schools, selected, onChange, onSchoolDe
         setSearchQuery("");
         setHighlightedIndex(-1);
         break;
+      default:
+        break;
     }
   };
 

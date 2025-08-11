@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import API from "../api/api";
 import * as faceapi from 'face-api.js';
 
@@ -24,20 +24,6 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
       : 'http://localhost:5000/api'));
   const backendOrigin = apiBase.replace(/\/?api\/?$/, '');
 
-  // Load face-api models on component mount
-  useEffect(() => {
-    loadFaceApiModels();
-  }, []);
-
-  // Fetch group photo when schoolId changes
-  useEffect(() => {
-    if (schoolId) {
-      fetchGroupPhoto();
-    } else {
-      setGroupPhoto(null);
-    }
-  }, [schoolId]);
-
   const loadFaceApiModels = async () => {
     try {
       await faceapi.loadTinyFaceDetectorModel('/models');
@@ -49,7 +35,7 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
     }
   };
 
-  const fetchGroupPhoto = async () => {
+  const fetchGroupPhoto = useCallback(async () => {
     if (!schoolId) return;
     
     setLoadingGroupPhoto(true);
@@ -78,7 +64,21 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
     } finally {
       setLoadingGroupPhoto(false);
     }
-  };
+  }, [schoolId]);
+
+  // Load face-api models on component mount
+  useEffect(() => {
+    loadFaceApiModels();
+  }, []);
+
+  // Fetch group photo when schoolId changes
+  useEffect(() => {
+    if (schoolId) {
+      fetchGroupPhoto();
+    } else {
+      setGroupPhoto(null);
+    }
+  }, [schoolId, fetchGroupPhoto]);
 
   const handleVerify = async (student) => {
     if (!modelsLoaded) {
@@ -118,7 +118,7 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
     setManualVerifyingId(student._id);
     
     try {
-      const response = await API.post(`/student/${student._id}/manual-verify`);
+      await API.post(`/student/${student._id}/manual-verify`);
       onVerifyResult("success", `Manually verified ${student.name} successfully.`);
     } catch (err) {
       console.error('Manual verification error:', err);
@@ -385,7 +385,7 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
             <div className="flex justify-center mb-3">
               <img
                 src={`${backendOrigin}/${groupPhoto}`}
-                alt="Group Photo"
+                alt="Group"
                 className="max-w-full h-auto max-h-64 sm:max-h-96 rounded shadow-lg"
                 onError={(e) => {
                   console.error('Error loading group photo:', e);
