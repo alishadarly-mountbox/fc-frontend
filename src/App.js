@@ -1,24 +1,22 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-function App() {
-  const isAuth = Boolean(localStorage.getItem("token"));
-
+export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to={isAuth ? "/dashboard" : "/login"} />} />
-      <Route 
-        path="/login" 
-        element={isAuth ? <Navigate to="/dashboard" /> : <LoginPage />} 
-      />
-      <Route 
-        path="/dashboard" 
-        element={isAuth ? <Dashboard /> : <Navigate to="/login" />} 
-      />
-      <Route path="*" element={<Navigate to="/" />} />
-    </Routes>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </Router>
   );
 }
-
-export default App;
