@@ -28,12 +28,12 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
   const loadFaceApiModels = async () => {
     try {
       // Point to the public/models directory
-      const MODEL_URL = `${process.env.PUBLIC_URL}/models`;
+     const MODEL_URL = process.env.PUBLIC_URL + '/models'
       
       await Promise.all([
-        faceapi.nets.ssdMobilenetv1.loadFromUri('/models'),
-        faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
-        faceapi.nets.faceRecognitionNet.loadFromUri('/models')
+        faceapi.nets.ssdMobilenetv1.loadFromUri('MODEL_URL'),
+        faceapi.nets.faceLandmark68Net.loadFromUri('MODEL_URL'),
+        faceapi.nets.faceRecognitionNet.loadFromUri('MODEL_URL')
       ]);
       
       setModelsLoaded(true);
