@@ -23,8 +23,23 @@ export default function AddSchoolModal({ onClose, onSuccess }) {
     } catch (err) {
       setLoading(false);
       const status = err?.response?.status;
-      const msg = err?.response?.data?.message || err.message || 'Failed to add school';
-      alert(`Failed to add school (${status || 'network'}): ${msg}`);
+      const data = err?.response?.data;
+      
+      let errorMessage = 'Failed to add school';
+      
+      if (status === 400 && data?.message) {
+        // Handle duplicate school error
+        errorMessage = data.message;
+        if (data.suggestion) {
+          errorMessage += `\n\n${data.suggestion}`;
+        }
+      } else if (data?.message) {
+        errorMessage = data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      alert(`Failed to add school (${status || 'network'}): ${errorMessage}`);
     }
   };
 
