@@ -16,6 +16,7 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
+  const modelRef = useRef(null);
 
   // Derive backend origin for loading static uploads
   const apiBase = (process.env.REACT_APP_API_URL ||
@@ -26,12 +27,18 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
 
   const loadFaceApiModels = async () => {
     try {
-      const MODEL_URL = '/models';
-      await faceapi.loadSsdMobilenetv1Model(MODEL_URL);
-      await faceapi.loadFaceLandmarkModel(MODEL_URL);
-      await faceapi.loadFaceRecognitionModel(MODEL_URL);
+      // Point to the public/models directory
+      const MODEL_URL = `${process.env.PUBLIC_URL}/models`;
+      
+      await Promise.all([
+        faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+      ]);
+      
       setModelsLoaded(true);
       console.log('Face-api models loaded successfully');
+      modelRef.current = true;
     } catch (error) {
       console.error('Error loading face-api models:', error);
     }
@@ -80,11 +87,17 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
   useEffect(() => {
     const loadModels = async () => {
         try {
-            const MODEL_URL = '/models';
-            await faceapi.loadSsdMobilenetv1Model(MODEL_URL);
-            await faceapi.loadFaceLandmarkModel(MODEL_URL);
-            await faceapi.loadFaceRecognitionModel(MODEL_URL);
+            // Point to the public/models directory
+            const MODEL_URL = `${process.env.PUBLIC_URL}/models`;
+            
+            await Promise.all([
+                faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+                faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+            ]);
+            
             console.log('Face-api models loaded successfully');
+            modelRef.current = true;
         } catch (error) {
             console.error('Error loading face-api models:', error);
         }
