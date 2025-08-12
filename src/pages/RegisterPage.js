@@ -14,44 +14,23 @@ export default function RegisterPage() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
-    
-    // Validation
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-    
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long");
-      return;
-    }
-    
     setLoading(true);
-    
+
     try {
-      const response = await API.post("/auth/register", { username, password });
-      
-      if (response.data.success) {
-        setSuccess("Registration successful! You can now login.");
-        setUsername("");
-        setPassword("");
-        setConfirmPassword("");
-        
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
+      const response = await API.post("/auth/register", {
+        username: username.trim(),
+        password: password.trim(),
+        confirmPassword: confirmPassword.trim()
+      });
+
+      if (response.data?.message) {
+        navigate("/login", { replace: true });
       } else {
-        setError(response.data.message || "Registration failed");
+        throw new Error("Invalid response from server");
       }
     } catch (err) {
+      setError(err.response?.data?.message || "Registration failed");
       console.error("Registration error:", err);
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError("Registration failed. Please try again.");
-      }
     } finally {
       setLoading(false);
     }

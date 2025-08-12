@@ -24,14 +24,10 @@ export default function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-    
-    // Validate form before submission
-    if (!validateForm()) return;
-    
     setLoading(true);
 
     try {
-      const response = await API.post("/api/auth/login", {
+      const response = await API.post("/auth/login", {
         username: username.trim(),
         password: password.trim()
       });
@@ -43,11 +39,7 @@ export default function LoginPage() {
         throw new Error("Invalid response from server");
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message || 
-        err.message || 
-        "Login failed. Please try again."
-      );
+      setError(err.response?.data?.message || "Invalid username or password");
       console.error("Login error:", err);
     } finally {
       setLoading(false);
