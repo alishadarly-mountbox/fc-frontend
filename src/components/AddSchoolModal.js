@@ -16,12 +16,7 @@ export default function AddSchoolModal({ onClose, onSuccess }) {
     if (groupPhoto) formData.append("image", groupPhoto);
 
     try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            throw new Error('No authentication token found');
-        }
-
-        const res = await API.post("/api/school", formData, {
+        const res = await API.post("/school", formData, {
             headers: { 
                 "Content-Type": "multipart/form-data"
             }
@@ -32,7 +27,7 @@ export default function AddSchoolModal({ onClose, onSuccess }) {
     } catch (err) {
         setLoading(false);
         console.error('Upload error:', err.response?.data || err);
-        alert(`Upload failed: ${err.response?.data?.message || err.message}`);
+        alert(`Failed to add school: ${err.response?.data?.message || err.message}`);
     }
   };
 

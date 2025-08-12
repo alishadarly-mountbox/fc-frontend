@@ -87,8 +87,8 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
   useEffect(() => {
     const loadModels = async () => {
         try {
-            // Point to the public/models directory
-            const MODEL_URL = `${process.env.PUBLIC_URL}/models`;
+            // Point to the correct models path
+            const MODEL_URL = '/models';
             
             await Promise.all([
                 faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),

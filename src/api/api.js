@@ -1,23 +1,25 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://fc-backend-7o50.onrender.com/api",
-  headers: {
-    "Content-Type": "application/json",
-  }
+    baseURL: "https://fc-backend-7o50.onrender.com/api", // Remove trailing slash
+    headers: {
+        "Content-Type": "application/json"
+    }
 });
 
-// Add request interceptor
 API.interceptors.request.use(
-  (config) => {
-    console.log('🚀 API Request:', config.method, config.url);
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
+    (config) => {
+        // Remove duplicate /api if present
+        config.url = config.url.replace('/api/api/', '/api/');
+        console.log('🚀 API Request:', config.method, config.url);
+        
+        const token = localStorage.getItem("token");
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
 );
 
 // Add response interceptor
