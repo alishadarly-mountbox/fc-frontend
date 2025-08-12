@@ -11,38 +11,22 @@ export default function AddSchoolModal({ onClose, onSuccess }) {
     if (!xlsFile) return;
     setLoading(true);
     const formData = new FormData();
-    formData.append("file", xlsFile); // Changed from "xlsFile" to "file"
-    if (groupPhoto) formData.append("image", groupPhoto); // Changed from "groupPhoto" to "image"
+    formData.append("file", xlsFile);
+    if (groupPhoto) formData.append("image", groupPhoto);
 
     try {
-      const res = await API.post("/api/school", formData, {
-        headers: { 
-          "Content-Type": "multipart/form-data",
-          "Authorization": `Bearer ${localStorage.getItem('token')}` // Add auth token
-        },
-      });
-      setLoading(false);
-      onSuccess(res.data?.school);
+        const res = await API.post("/api/school", formData, {
+            headers: { 
+                "Content-Type": "multipart/form-data",
+                // Authorization header is now handled by the interceptor
+            },
+        });
+        setLoading(false);
+        onSuccess(res.data?.school);
     } catch (err) {
-      setLoading(false);
-      const status = err?.response?.status;
-      const data = err?.response?.data;
-      
-      let errorMessage = 'Failed to add school';
-      
-      if (status === 400 && data?.message) {
-        // Handle duplicate school error
-        errorMessage = data.message;
-        if (data.suggestion) {
-          errorMessage += `\n\n${data.suggestion}`;
-        }
-      } else if (data?.message) {
-        errorMessage = data.message;
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-      
-      alert(`Failed to add school (${status || 'network'}): ${errorMessage}`);
+        setLoading(false);
+        console.error('Upload error:', err.response || err);
+        alert(`Failed to add school: ${err.response?.data?.message || err.message}`);
     }
   };
 
