@@ -10,13 +10,21 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
   const [currentStudent, setCurrentStudent] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const [modelsLoaded, setModelsLoaded] = useState(false);
-  const [groupPhoto, setGroupPhoto] = useState(null);
-  const [loadingGroupPhoto, setLoadingGroupPhoto] = useState(false);
-  const [groupDescriptorsInfo, setGroupDescriptorsInfo] = useState(null);
+  // const [groupPhoto, setGroupPhoto] = useState(null);
+  // const [loadingGroupPhoto, setLoadingGroupPhoto] = useState(false);
+  // const [groupDescriptorsInfo, setGroupDescriptorsInfo] = useState(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const modelRef = useRef(null);
+
+   useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
 
   // Derive backend origin for loading static uploads
   const apiBase = (process.env.REACT_APP_API_URL ||
