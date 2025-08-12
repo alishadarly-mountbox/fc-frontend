@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/api";
 import AddSchoolModal from "../components/AddSchoolModal";
@@ -18,14 +18,6 @@ export default function Dashboard() {
   // Get user info from localStorage
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-  useEffect(() => {
-    fetchSchools();
-  }, []);
-
-  useEffect(() => {
-    if (selectedSchool) fetchStudents(selectedSchool);
-  }, [selectedSchool]);
-
   const handleLogout = async () => {
     try {
       // Call logout endpoint
@@ -39,14 +31,6 @@ export default function Dashboard() {
       navigate('/');
     }
   };
-
-  useEffect(() => {
-    fetchSchools();
-  }, []);
-
-  useEffect(() => {
-    if (selectedSchool) fetchStudents(selectedSchool);
-  }, [selectedSchool]);
 
   const fetchSchools = async () => {
     const res = await API.get("/school");

@@ -41,6 +41,9 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
     setLoadingGroupPhoto(true);
     try {
       console.log('Fetching group photo for schoolId:', schoolId);
+      console.log('API base URL:', API.defaults.baseURL);
+      console.log('Making request to:', `/school/${schoolId}`);
+      
       const response = await API.get(`/school/${schoolId}`);
       console.log('School response:', response.data);
       
@@ -58,7 +61,12 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
         descriptorsCount: response.data.descriptorsCount
       });
     } catch (error) {
-      console.error('Error fetching group photo:', error);
+      console.error('Error fetching group photo details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        config: error.config
+      });
       setGroupPhoto(null);
       setGroupDescriptorsInfo(null);
     } finally {
@@ -185,6 +193,9 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
         return;
       }
       
+      console.log('Submitting verification to:', `/verification/${currentStudent._id}`);
+      console.log('API base URL:', API.defaults.baseURL);
+      
       const response = await API.post(`/verification/${currentStudent._id}`, {
         capturedImage: capturedImage,
         studentId: currentStudent._id,
@@ -193,14 +204,29 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
         faceCount: detections.length
       });
       
+      console.log('Verification response:', response.data);
+      
       const result = response.data.result;
       const message = response.data.message;
       
       onVerifyResult(result, message);
       
     } catch (err) {
-      console.error('Verification error:', err);
-      onVerifyResult("failed", `Verification failed: ${err.message}`);
+      console.error('Verification error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        config: err.config
+      });
+      
+      let errorMessage = 'Verification failed';
+      if (err.response?.data?.message) {
+        errorMessage += `: ${err.response.data.message}`;
+      } else if (err.message) {
+        errorMessage += `: ${err.message}`;
+      }
+      
+      onVerifyResult("failed", errorMessage);
     }
     
     closeCamera();
@@ -214,6 +240,24 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
     setShowCamera(false);
     setCapturedImage(null);
     setCurrentStudent(null);
+  };
+
+  const downloadVerificationImages = () => {
+    const verifiedStudents = students.filter(s => s.capturedImage);
+    if (verifiedStudents.length === 0) return;
+
+    // Create a zip file with all verification images
+    verifiedStudents.forEach((student, index) => {
+      const link = document.createElement('a');
+      link.href = `${backendOrigin}/${student.capturedImage}`;
+      link.download = `verification_${student.name}_${student.registrationNo}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Add delay between downloads to prevent browser blocking
+      setTimeout(() => {}, index * 100);
+    });
   };
 
   return (
@@ -317,6 +361,7 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
               <th className="p-2 border text-xs sm:text-sm">Action</th>
               <th className="p-2 border text-xs sm:text-sm">Manual Verification</th>
               <th className="p-2 border text-xs sm:text-sm">Re-verify</th>
+              <th className="p-2 border text-xs sm:text-sm">Captured Image</th>
             </tr>
           </thead>
           <tbody>
@@ -336,6 +381,11 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
                     ? <span className="text-red-600">❌ Failed</span>
                     : <span className="text-gray-600">⏳ Pending</span>
                   }
+                  {student.verificationDate && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      {new Date(student.verificationDate).toLocaleDateString()}
+                    </div>
+                  )}
                 </td>
                 <td className="p-2 border">
                   <button
@@ -364,11 +414,62 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
                     {reVerifyingId === student._id ? "Resetting..." : "Re-verify"}
                   </button>
                 </td>
+                <td className="p-2 border text-center">
+                  {student.capturedImage ? (
+                    <div className="flex flex-col items-center">
+                      <img
+                        src={`${backendOrigin}/${student.capturedImage}`}
+                        alt={`Verification of ${student.name}`}
+                        className="w-16 h-16 object-cover rounded border cursor-pointer hover:scale-110 transition-transform"
+                        onClick={() => window.open(`${backendOrigin}/${student.capturedImage}`, '_blank')}
+                        title="Click to view full size"
+                      />
+                      <span className="text-xs text-gray-500 mt-1">Click to enlarge</span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-gray-400">No image</span>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* Verification Images Gallery */}
+      {students.some(s => s.capturedImage) && (
+        <div className="bg-white rounded shadow p-4 mb-4">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-lg font-semibold">Verification Images</h3>
+            {students.filter(s => s.capturedImage).length > 0 && (
+              <button
+                className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+                onClick={() => downloadVerificationImages()}
+                title="Download all verification images"
+              >
+                📥 Download All
+              </button>
+            )}
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {students
+              .filter(s => s.capturedImage)
+              .map(student => (
+                <div key={student._id} className="text-center">
+                  <img
+                    src={`${backendOrigin}/${student.capturedImage}`}
+                    alt={`${student.name} verification`}
+                    className="w-full h-24 object-cover rounded border cursor-pointer hover:scale-105 transition-transform"
+                    onClick={() => window.open(`${backendOrigin}/${student.capturedImage}`, '_blank')}
+                    title={`${student.name} - Click to view full size`}
+                  />
+                  <p className="text-xs text-gray-600 mt-1 truncate">{student.name}</p>
+                  <p className="text-xs text-gray-400">{student.class}</p>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
 
       {/* Group Photo Section */}
       <div className="bg-white rounded shadow p-4">
@@ -464,6 +565,23 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
           <p>Models Loaded: {modelsLoaded ? 'Yes' : 'No'}</p>
           <p>Has Group Descriptors: {groupDescriptorsInfo?.hasGroupDescriptors ? 'Yes' : 'No'}</p>
           <p>Descriptors Count: {groupDescriptorsInfo?.descriptorsCount || 0}</p>
+          <p>API Base URL: {API.defaults.baseURL}</p>
+          <button
+            className="mt-2 bg-blue-500 text-white px-2 py-1 rounded text-xs"
+            onClick={async () => {
+              try {
+                console.log('Testing API connection...');
+                const response = await API.get('/school');
+                console.log('API test successful:', response.data);
+                alert('API connection successful! Check console for details.');
+              } catch (error) {
+                console.error('API test failed:', error);
+                alert(`API test failed: ${error.message}\nCheck console for details.`);
+              }
+            }}
+          >
+            Test API Connection
+          </button>
         </div>
       )}
     </div>
