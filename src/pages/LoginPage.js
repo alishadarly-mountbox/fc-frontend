@@ -13,25 +13,15 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    
+
     try {
-      const response = await API.post("/auth/login", { username, password });
-      
-      if (response.data.success) {
-        // Store user info in localStorage (simple session management)
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-        localStorage.setItem("isLoggedIn", "true");
-        navigate("/dashboard");
-      } else {
-        setError(response.data.message || "Login failed");
-      }
+      const response = await API.post("/api/auth/login", { username, password });
+
+      localStorage.setItem("token", response.data.token);
+      navigate("/dashboard");
     } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
       console.error("Login error:", err);
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError("Login failed. Please try again.");
-      }
     } finally {
       setLoading(false);
     }
