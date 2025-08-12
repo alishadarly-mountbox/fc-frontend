@@ -19,7 +19,7 @@
   "scripts": {
     "start": "craco start",
     "build": "set NODE_OPTIONS=--max-old-space-size=4096 && craco build",
-    "build:prod": "set NODE_OPTIONS=--max-old-space-size=4096 && set GENERATE_SOURCEMAP=false && set NODE_ENV=production && craco build --config craco.config.prod.js",
+    "build:prod": "set NODE_OPTIONS=--max-old-space-size=4096 && set GENERATE_SOURCEMAP=false && set NODE_ENV=production && craco build",
     "build:fast": "node build-optimized.js",
     "test": "craco test",
     "eject": "react-scripts eject"

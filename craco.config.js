@@ -1,22 +1,6 @@
 const webpack = require('webpack');
 
 module.exports = {
-  babel: {
-    presets: [
-      [
-        '@babel/preset-env',
-        {
-          targets: {
-            node: 'current',
-          },
-        },
-      ],
-    ],
-    plugins: [
-      // Only include React Refresh in development
-      process.env.NODE_ENV === 'development' && 'react-refresh/babel',
-    ].filter(Boolean),
-  },
   webpack: {
     configure: (webpackConfig) => {
       // Exclude large model files from build

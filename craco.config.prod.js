@@ -1,22 +1,6 @@
 const webpack = require('webpack');
 
 module.exports = {
-  babel: {
-    presets: [
-      [
-        '@babel/preset-env',
-        {
-          targets: {
-            browsers: ['>0.2%', 'not dead', 'not op_mini all'],
-          },
-        },
-      ],
-      '@babel/preset-react',
-    ],
-    plugins: [
-      // No React Refresh in production
-    ],
-  },
   webpack: {
     configure: (webpackConfig) => {
       // Exclude large model files from build

@@ -19,7 +19,7 @@ try {
 
   // Run build command
   console.log('🔨 Building with optimizations...');
-  execSync('npx craco build --config craco.config.prod.js', { 
+  execSync('npx craco build', { 
     stdio: 'inherit',
     env: process.env,
     cwd: __dirname
