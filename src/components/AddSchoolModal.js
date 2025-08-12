@@ -10,6 +10,7 @@ export default function AddSchoolModal({ onClose, onSuccess }) {
     e.preventDefault();
     if (!xlsFile) return;
     setLoading(true);
+
     const formData = new FormData();
     formData.append("file", xlsFile);
     if (groupPhoto) formData.append("image", groupPhoto);
@@ -17,15 +18,14 @@ export default function AddSchoolModal({ onClose, onSuccess }) {
     try {
         const res = await API.post("/api/school", formData, {
             headers: { 
-                "Content-Type": "multipart/form-data",
-                // Authorization header is now handled by the interceptor
+                "Content-Type": "multipart/form-data"
             },
         });
         setLoading(false);
         onSuccess(res.data?.school);
     } catch (err) {
         setLoading(false);
-        console.error('Upload error:', err.response || err);
+        console.error('Upload error:', err.response?.data || err);
         alert(`Failed to add school: ${err.response?.data?.message || err.message}`);
     }
   };

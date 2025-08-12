@@ -8,7 +8,6 @@ const API = axios.create({
   withCredentials: true,
 });
 
-// Add request interceptor
 API.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -17,8 +16,16 @@ API.interceptors.request.use(
     }
     return config;
   },
+  (error) => Promise.reject(error)
+);
+
+API.interceptors.response.use(
+  (response) => response,
   (error) => {
-    console.error("Request Error:", error);
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      window.location.href = "/login";
+    }
     return Promise.reject(error);
   }
 );

@@ -26,8 +26,10 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
 
   const loadFaceApiModels = async () => {
     try {
-      await faceapi.loadTinyFaceDetectorModel('/models');
-      await faceapi.loadFaceLandmarkTinyModel('/models');
+      const MODEL_URL = '/models';
+      await faceapi.loadSsdMobilenetv1Model(MODEL_URL);
+      await faceapi.loadFaceLandmarkModel(MODEL_URL);
+      await faceapi.loadFaceRecognitionModel(MODEL_URL);
       setModelsLoaded(true);
       console.log('Face-api models loaded successfully');
     } catch (error) {
@@ -76,8 +78,25 @@ export default function StudentTable({ students, schoolId, onVerifyResult }) {
 
   // Load face-api models on component mount
   useEffect(() => {
-    loadFaceApiModels();
-  }, []);
+    const loadModels = async () => {
+        try {
+            const MODEL_URL = '/models';
+            await faceapi.loadSsdMobilenetv1Model(MODEL_URL);
+            await faceapi.loadFaceLandmarkModel(MODEL_URL);
+            await faceapi.loadFaceRecognitionModel(MODEL_URL);
+            console.log('Face-api models loaded successfully');
+        } catch (error) {
+            console.error('Error loading face-api models:', error);
+        }
+    };
+
+    if (document.readyState === 'complete') {
+        loadModels();
+    } else {
+        window.addEventListener('load', loadModels);
+        return () => window.removeEventListener('load', loadModels);
+    }
+}, []);
 
   // Fetch group photo when schoolId changes
   useEffect(() => {
