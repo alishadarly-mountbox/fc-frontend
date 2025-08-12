@@ -16,18 +16,29 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
 
+    // Add validation
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await API.post("/auth/register", {
+      const response = await API.post("/api/auth/register", {
         username: username.trim(),
-        password: password.trim(),
-        confirmPassword: confirmPassword.trim()
+        password: password.trim()
       });
 
-      if (response.data?.message) {
+      setSuccess("Registration successful!");
+      setTimeout(() => {
         navigate("/login", { replace: true });
-      } else {
-        throw new Error("Invalid response from server");
-      }
+      }, 1500);
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
       console.error("Registration error:", err);
