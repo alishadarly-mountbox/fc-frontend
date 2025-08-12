@@ -17,11 +17,11 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "set NODE_OPTIONS=--max-old-space-size=4096 && craco build",
-    "build:prod": "set NODE_OPTIONS=--max-old-space-size=4096 && set GENERATE_SOURCEMAP=false && set NODE_ENV=production && craco build",
-    "build:fast": "node build-optimized.js",
-    "test": "craco test",
+    "start": "react-scripts start",
+    "build": "set NODE_OPTIONS=--max-old-space-size=4096 && react-scripts build",
+    "build:prod": "set NODE_OPTIONS=--max-old-space-size=4096 && set GENERATE_SOURCEMAP=false && set NODE_ENV=production && react-scripts build",
+    "build:fast": "set NODE_OPTIONS=--max-old-space-size=4096 && set GENERATE_SOURCEMAP=false && react-scripts build",
+    "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "proxy": "http://localhost:5000",
