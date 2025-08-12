@@ -5,31 +5,20 @@ const API = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 // Add request interceptor
 API.interceptors.request.use(
   (config) => {
-    console.log("🚀 API Request:", config.method?.toUpperCase(), config.url);
-    console.log("📍 Base URL:", config.baseURL);
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {
-    console.error("❌ Request Error:", error);
-    return Promise.reject(error);
-  }
-);
-
-// Add response interceptor
-API.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error("❌ API Error:", {
-      message: error.message,
-      status: error.response?.status,
-      url: error.config?.url,
-      baseURL: error.config?.baseURL,
-    });
+    console.error("Request Error:", error);
     return Promise.reject(error);
   }
 );
