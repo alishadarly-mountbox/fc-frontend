@@ -7,9 +7,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 function App() {
   return (
     <>
-    <Router>
+      <Router>
         <Routes>
-          <Route path="/" element={<LoginPage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route
             path="/dashboard"
@@ -20,7 +20,8 @@ function App() {
             }
           />
         </Routes>
-      </Router></>
+      </Router>
+    </>
   );
 }
 
