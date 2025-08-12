@@ -7,15 +7,15 @@ module.exports = {
         '@babel/preset-env',
         {
           targets: {
-            node: 'current',
+            browsers: ['>0.2%', 'not dead', 'not op_mini all'],
           },
         },
       ],
+      '@babel/preset-react',
     ],
     plugins: [
-      // Only include React Refresh in development
-      process.env.NODE_ENV === 'development' && 'react-refresh/babel',
-    ].filter(Boolean),
+      // No React Refresh in production
+    ],
   },
   webpack: {
     configure: (webpackConfig) => {
@@ -64,6 +64,10 @@ module.exports = {
     plugins: [
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
+      }),
+      // Ensure production mode
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify('production'),
       }),
     ],
   },
