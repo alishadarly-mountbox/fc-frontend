@@ -9,18 +9,45 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const validateForm = () => {
+    if (!username.trim()) {
+      setError("Username is required");
+      return false;
+    }
+    if (!password.trim()) {
+      setError("Password is required");
+      return false;
+    }
+    return true;
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    
+    // Validate form before submission
+    if (!validateForm()) return;
+    
     setLoading(true);
 
     try {
-      const response = await API.post("/api/auth/login", { username, password });
+      const response = await API.post("/api/auth/login", {
+        username: username.trim(),
+        password: password.trim()
+      });
 
-      localStorage.setItem("token", response.data.token);
-      navigate("/dashboard");
+      if (response.data?.token) {
+        localStorage.setItem("token", response.data.token);
+        navigate("/dashboard", { replace: true });
+      } else {
+        throw new Error("Invalid response from server");
+      }
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      setError(
+        err.response?.data?.message || 
+        err.message || 
+        "Login failed. Please try again."
+      );
       console.error("Login error:", err);
     } finally {
       setLoading(false);

@@ -1,43 +1,39 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Dashboard from "./pages/Dashboard";
-import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
-  const isAuthenticated = Boolean(localStorage.getItem('token'));
+  // Check if user is authenticated
+  const isAuth = Boolean(localStorage.getItem('token'));
+
+  // Protect routes that require authentication
+  const PrivateRoute = ({ children }) => {
+    return isAuth ? children : <Navigate to="/login" />;
+  };
+
+  // Redirect authenticated users from auth pages
+  const AuthRoute = ({ children }) => {
+    return !isAuth ? children : <Navigate to="/dashboard" />;
+  };
 
   return (
-    <Router basename="/">
+    <BrowserRouter>
       <Routes>
-        <Route 
-          path="/" 
-          element={
-            isAuthenticated ? 
-            <Navigate to="/dashboard" replace /> : 
-            <Navigate to="/login" replace />
-          } 
-        />
-        <Route 
-          path="/login" 
-          element={
-            isAuthenticated ? 
-            <Navigate to="/dashboard" replace /> : 
-            <LoginPage />
-          } 
-        />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route
-          path="/dashboard/*"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Root redirect */}
+        <Route path="/" element={<Navigate to={isAuth ? "/dashboard" : "/login"} />} />
+        
+        {/* Auth routes */}
+        <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
+        <Route path="/register" element={<AuthRoute><RegisterPage /></AuthRoute>} />
+        
+        {/* Protected routes */}
+        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        
+        {/* Catch all */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 
