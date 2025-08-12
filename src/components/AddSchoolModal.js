@@ -11,12 +11,15 @@ export default function AddSchoolModal({ onClose, onSuccess }) {
     if (!xlsFile) return;
     setLoading(true);
     const formData = new FormData();
-    formData.append("xlsFile", xlsFile);
-    if (groupPhoto) formData.append("groupPhoto", groupPhoto);
+    formData.append("file", xlsFile); // Changed from "xlsFile" to "file"
+    if (groupPhoto) formData.append("image", groupPhoto); // Changed from "groupPhoto" to "image"
 
     try {
-      const res = await API.post("/school/add", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const res = await API.post("/api/school", formData, {
+        headers: { 
+          "Content-Type": "multipart/form-data",
+          "Authorization": `Bearer ${localStorage.getItem('token')}` // Add auth token
+        },
       });
       setLoading(false);
       onSuccess(res.data?.school);
