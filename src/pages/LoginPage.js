@@ -9,10 +9,11 @@ export default function LoginPage() {
 
   const handleLogin = (e) => {
     e.preventDefault();
+    setError("");
     
     if (username === "admin" && password === "admin123") {
       localStorage.setItem("token", "admin-token");
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     } else {
       setError("Invalid username or password");
     }
@@ -20,40 +21,38 @@ export default function LoginPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form className="bg-white p-8 rounded shadow-md w-80" onSubmit={handleLogin}>
+      <form onSubmit={handleLogin} className="bg-white p-8 rounded shadow-md w-80">
         <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
         
         <input
-          className="w-full p-2 border rounded mb-4"
           type="text"
           placeholder="Username"
           value={username}
-          onChange={e => setUsername(e.target.value)}
+          onChange={(e) => setUsername(e.target.value)}
+          className="w-full p-2 mb-4 border rounded"
           required
         />
         
         <input
-          className="w-full p-2 border rounded mb-4"
           type="password"
           placeholder="Password"
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full p-2 mb-4 border rounded"
           required
         />
         
         {error && (
-          <div className="text-red-500 mb-4 text-sm text-center">
-            {error}
-          </div>
+          <div className="text-red-500 text-sm text-center mb-4">{error}</div>
         )}
         
         <button 
-          className="w-full py-2 rounded text-white font-medium bg-blue-500 hover:bg-blue-600"
           type="submit"
+          className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Login
         </button>
-        
+
         <div className="mt-4 text-xs text-gray-500 text-center">
           <p>Username: admin</p>
           <p>Password: admin123</p>

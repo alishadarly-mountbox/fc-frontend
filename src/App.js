@@ -1,39 +1,23 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
 import Dashboard from "./pages/Dashboard";
 
 function App() {
-  // Check if user is authenticated
-  const isAuth = Boolean(localStorage.getItem('token'));
-
-  // Protect routes that require authentication
-  const PrivateRoute = ({ children }) => {
-    return isAuth ? children : <Navigate to="/login" />;
-  };
-
-  // Redirect authenticated users from auth pages
-  const AuthRoute = ({ children }) => {
-    return !isAuth ? children : <Navigate to="/dashboard" />;
-  };
+  const isAuth = Boolean(localStorage.getItem("token"));
 
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Root redirect */}
-        <Route path="/" element={<Navigate to={isAuth ? "/dashboard" : "/login"} />} />
-        
-        {/* Auth routes */}
-        <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
-        <Route path="/register" element={<AuthRoute><RegisterPage /></AuthRoute>} />
-        
-        {/* Protected routes */}
-        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        
-        {/* Catch all */}
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Navigate to={isAuth ? "/dashboard" : "/login"} />} />
+      <Route 
+        path="/login" 
+        element={isAuth ? <Navigate to="/dashboard" /> : <LoginPage />} 
+      />
+      <Route 
+        path="/dashboard" 
+        element={isAuth ? <Dashboard /> : <Navigate to="/login" />} 
+      />
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
   );
 }
 
