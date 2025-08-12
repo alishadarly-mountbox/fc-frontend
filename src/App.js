@@ -5,29 +5,36 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
+  const isAuthenticated = Boolean(localStorage.getItem('token'));
+
   return (
-    <Router>
+    <Router basename="/">
       <Routes>
-        {/* Redirect root to dashboard or login based on auth status */}
         <Route 
           path="/" 
           element={
-            localStorage.getItem('token') ? 
+            isAuthenticated ? 
             <Navigate to="/dashboard" replace /> : 
             <Navigate to="/login" replace />
           } 
         />
-        <Route path="/login" element={<LoginPage />} />
+        <Route 
+          path="/login" 
+          element={
+            isAuthenticated ? 
+            <Navigate to="/dashboard" replace /> : 
+            <LoginPage />
+          } 
+        />
         <Route path="/register" element={<RegisterPage />} />
         <Route
-          path="/dashboard"
+          path="/dashboard/*"
           element={
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
           }
         />
-        {/* Catch all route for 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
