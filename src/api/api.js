@@ -7,8 +7,10 @@ const API = axios.create({
   }
 });
 
+// Add request interceptor
 API.interceptors.request.use(
   (config) => {
+    console.log('🚀 API Request:', config.method, config.url);
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -18,13 +20,14 @@ API.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Add response interceptor
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-    }
+    console.error('❌ API Error:', {
+      status: error.response?.status,
+      message: error.response?.data?.message || error.message
+    });
     return Promise.reject(error);
   }
 );

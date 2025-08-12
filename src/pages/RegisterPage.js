@@ -7,41 +7,46 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const validateForm = () => {
+    if (!username.trim()) {
+      setError("Username is required");
+      return false;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return false;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return false;
+    }
+    return true;
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
 
-    // Add validation
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      setLoading(false);
-      return;
-    }
-
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const response = await API.post("/api/auth/register", {
+      const response = await API.post("/auth/register", {
         username: username.trim(),
         password: password.trim()
       });
 
-      setSuccess("Registration successful!");
-      setTimeout(() => {
-        navigate("/login", { replace: true });
-      }, 1500);
+      console.log("Registration successful:", response.data);
+      navigate("/login", { state: { message: "Registration successful! Please login." } });
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
       console.error("Registration error:", err);
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -75,7 +80,7 @@ export default function RegisterPage() {
             disabled={loading}
           />
         </div>
-        
+
         <div className="mb-4">
           <input
             className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -94,26 +99,20 @@ export default function RegisterPage() {
           </div>
         )}
         
-        {success && (
-          <div className="text-green-500 mb-4 text-sm text-center">
-            {success}
-          </div>
-        )}
-        
         <button 
           className={`w-full py-2 rounded text-white font-medium transition-colors ${
             loading 
               ? 'bg-gray-400 cursor-not-allowed' 
-              : 'bg-green-500 hover:bg-green-600'
+              : 'bg-blue-500 hover:bg-blue-600'
           }`} 
           type="submit"
           disabled={loading}
         >
-          {loading ? "Creating Account..." : "Register"}
+          {loading ? "Registering..." : "Register"}
         </button>
         
         <div className="mt-4 text-center">
-          <Link to="/" className="text-blue-500 hover:text-blue-600 text-sm">
+          <Link to="/login" className="text-blue-500 hover:text-blue-600 text-sm">
             Already have an account? Login here
           </Link>
         </div>
